@@ -1,10 +1,13 @@
 import http.client
 from html.parser import HTMLParser
 import os
+import re
 
 def notify(title, message):
     print("test")
-    os.system(f"terminal-notifier -title '{title}' -message '{message}' -timeout 0")
+    command = f"""osascript -e 'display notification "{message}" with title "{title}"'"""
+    os.system(command)
+    # os.system(f"terminal-notifier -title '{title}' -message '{message}' -timeout 0")
 # Define a custom HTML parser
 class MyHTMLParser(HTMLParser):
     def __init__(self):
@@ -14,14 +17,14 @@ class MyHTMLParser(HTMLParser):
         self.img_alt_texts = []
 
     def handle_starttag(self, tag, attrs):
+        mood_type_pattern = r'.*indicator_parts/.*\.svg$'
         if tag == 'span':
             for name, value in attrs:
                 if name == 'class' and 'number' in value:
                     self.in_mmi_value = True
         if tag == 'img':
             for name, value in attrs:
-                print(f"name{name}, value:{value}")
-                if name == 'src' and value.startswith("indicator_parts/") and value.endswith(".svg"):
+                if name == 'src' and re.match(mood_type_pattern,value):
                     for name, value in attrs:
                         if name == 'alt':
                             self.img_alt_texts.append(value)
@@ -47,15 +50,12 @@ if response.status == 200:
     mmi_region=None
     if parser.mmi_value:
         mmi_value=int(float(parser.mmi_value))
-        print("Market Mood Index (MMI) value:", parser.mmi_value)
+        print("\nMarket Mood Index (MMI) value:", mmi_value)
         for alt_text in parser.img_alt_texts:
-            print(alt_text.split()[0])  # Extracting the first word ("Greed")  
-            mmi_region=alt_text.split()[0] 
-        if(mmi_value<=35 or mmi_value>=65):
-            print(mmi_region)
-            notify("Extremes on Market Mood Index (MMI) ", mmi_region)
+            print(alt_text)
+            if(mmi_value<=35 or mmi_value>=65):                
+                notify(alt_text, f"MMI Value: {mmi_value}!!!")
     else:
         print("MMI value not found on the page.")
-
 else:
     print("Failed to retrieve the webpage. Status code:", response.status)  
