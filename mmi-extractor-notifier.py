@@ -44,7 +44,7 @@ response = conn.getresponse()
 
 if response.status == 200:
     html_content = response.read().decode()
-    # Parse the HTML content
+    # Parse the HTML content d
     parser = MyHTMLParser()
     parser.feed(html_content)
     mmi_region=None
