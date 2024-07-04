@@ -4,10 +4,8 @@ import os
 import re
 
 def notify(title, message):
-    print("test")
-    command = f"""osascript -e 'display notification "{message}" with title "{title}"'"""
-    os.system(command)
-    # os.system(f"terminal-notifier -title '{title}' -message '{message}' -timeout 0")
+    command = f"""osascript -e 'display notification "{message}" with title "{title}" sound name "Submarine" '"""
+    os.system(command)    
 # Define a custom HTML parser
 class MyHTMLParser(HTMLParser):
     def __init__(self):
